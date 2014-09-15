@@ -234,9 +234,12 @@ public class BluetoothOppService extends Service {
                        mTransfer =null;
                     }
                     synchronized (BluetoothOppService.this) {
-                        if (mUpdateThread == null) {
-                            stopSelf();
+                        if (mUpdateThread != null) {
+                            mUpdateThread.doStop();
+                            mNotifier.mNotificationMgr.cancelAll();
+                            mNotifier.updateNotification();
                         }
+                        stopSelf();
                     }
                     // Update Notification
                     mNotifier.updateNotifier();
@@ -412,8 +415,14 @@ public class BluetoothOppService extends Service {
     }
 
     private class UpdateThread extends Thread {
+        private boolean mStop = false;
+
         public UpdateThread() {
             super("Bluetooth Share Service");
+        }
+
+        public void doStop() {
+            mStop = true;
         }
 
         @Override
@@ -469,7 +478,7 @@ public class BluetoothOppService extends Service {
                  * contains an entry that's not in the array, insert a new entry
                  * in the array, move to next cursor row and next array entry.
                  */
-                while (!isAfterLast || arrayPos < mShares.size()) {
+                while ((!isAfterLast || arrayPos < mShares.size()) && (mStop != true)) {
                     if (isAfterLast) {
                         // We're beyond the end of the cursor but there's still
                         // some
