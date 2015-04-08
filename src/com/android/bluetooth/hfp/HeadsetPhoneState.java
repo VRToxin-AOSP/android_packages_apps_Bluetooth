@@ -93,6 +93,9 @@ class HeadsetPhoneState {
     HeadsetPhoneState(Context context, HeadsetStateMachine stateMachine) {
         mStateMachine = stateMachine;
         mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        if (mTelephonyManager == null) {
+            Log.e(TAG, "getSystemService(Context.TELEPHONY_SERVICE) failed, returned null");
+        }
         mContext = context;
 
         // Register for SubscriptionInfo list changes which is guaranteed
@@ -129,11 +132,14 @@ class HeadsetPhoneState {
 
             if (SubscriptionManager.isValidSubscriptionId(subId)) {
                 mPhoneStateListener = getPhoneStateListener(subId);
-
-                mTelephonyManager.listen(mPhoneStateListener,
-                                         PhoneStateListener.LISTEN_SERVICE_STATE |
-                                         PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-                mListening = true;
+                if (mTelephonyManager == null) {
+                    Log.e(TAG, "mTelephonyManager is null, don't start to listen");
+                } else {
+                    mTelephonyManager.listen(mPhoneStateListener,
+                                             PhoneStateListener.LISTEN_SERVICE_STATE |
+                                             PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+                    mListening = true;
+                }
             }
         }
     }
@@ -141,8 +147,12 @@ class HeadsetPhoneState {
     private void stopListenForPhoneState() {
         if (mListening) {
 
-            mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
-            mListening = false;
+            if (mTelephonyManager == null) {
+                Log.e(TAG, "mTelephonyManager is null, don't stop to listen");
+            } else {
+                mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
+                mListening = false;
+            }
         }
     }
 
