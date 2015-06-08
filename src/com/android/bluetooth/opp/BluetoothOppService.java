@@ -238,6 +238,8 @@ public class BluetoothOppService extends Service {
                             stopSelf();
                         }
                     }
+                    // Update Notification
+                    mNotifier.updateNotifier();
                     break;
                 case START_LISTENER:
                     if (mAdapter.isEnabled()) {
@@ -379,6 +381,8 @@ public class BluetoothOppService extends Service {
                         break;
                     case BluetoothAdapter.STATE_TURNING_OFF:
                         if (V) Log.v(TAG, "Receiver DISABLED_ACTION ");
+                        mNotifier.updateNotifier();
+
                         //FIX: Don't block main thread
                         /*
                         mSocketListener.stop();
