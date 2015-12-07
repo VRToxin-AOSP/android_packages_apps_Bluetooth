@@ -142,6 +142,8 @@ public class BluetoothMapService extends ProfileService {
     private boolean mSdpSearchInitiated = false;
     SdpMnsRecord mMnsRecord = null;
 
+    private boolean mSmsCapable = true;
+
     // package and class name to which we send intent to check phone book access permission
     private static final String ACCESS_AUTHORITY_PACKAGE = "com.android.settings";
     private static final String ACCESS_AUTHORITY_CLASS =
@@ -568,6 +570,9 @@ public class BluetoothMapService extends ProfileService {
         mAppObserver = new BluetoothMapAppObserver(this, this);
 
         mEnabledAccounts = mAppObserver.getEnabledAccountItems();
+
+        mSmsCapable = getResources().getBoolean(
+                com.android.internal.R.bool.config_sms_capable);
         // Uses mEnabledAccounts, hence getEnabledAccountItems() must be called before this.
         createMasInstances();
 
@@ -705,17 +710,19 @@ public class BluetoothMapService extends ProfileService {
     }
 
     private void createMasInstances() {
-        int masId = MAS_ID_SMS_MMS;
+        int masId = mSmsCapable ? MAS_ID_SMS_MMS : -1;
 
-        // Add the SMS/MMS instance
-        BluetoothMapMasInstance smsMmsInst =
-                new BluetoothMapMasInstance(this,
-                        this,
-                        null,
-                        masId,
-                        true);
-        mMasInstances.append(masId, smsMmsInst);
-        mMasInstanceMap.put(null, smsMmsInst);
+        if (mSmsCapable) {
+            // Add the SMS/MMS instance
+            BluetoothMapMasInstance smsMmsInst =
+                    new BluetoothMapMasInstance(this,
+                            this,
+                            null,
+                            masId,
+                            true);
+            mMasInstances.append(masId, smsMmsInst);
+            mMasInstanceMap.put(null, smsMmsInst);
+        }
 
         // get list of accounts already set to be visible through MAP
         for(BluetoothMapAccountItem account : mEnabledAccounts) {
@@ -1001,7 +1008,8 @@ public class BluetoothMapService extends ProfileService {
                 BluetoothMapMasInstance masInst = null;
                 int result = getResultCode();
                 boolean handled = false;
-                if(mMasInstances != null && (masInst = mMasInstances.get(MAS_ID_SMS_MMS)) != null) {
+                if(mSmsCapable && mMasInstances != null &&
+                        (masInst = mMasInstances.get(MAS_ID_SMS_MMS)) != null) {
                     intent.putExtra(BluetoothMapContentObserver.EXTRA_MESSAGE_SENT_RESULT, result);
                     if(masInst.handleSmsSendIntent(context, intent)) {
                         // The intent was handled by the mas instance it self
