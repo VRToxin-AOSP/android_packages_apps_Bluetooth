@@ -102,9 +102,6 @@ static btpan_callbacks_t sBluetoothPanCallbacks = {
 // Define native functions
 
 static void classInitNative(JNIEnv* env, jclass clazz) {
-    int err;
-    bt_status_t status;
-
     method_onConnectStateChanged = env->GetMethodID(clazz, "onConnectStateChanged",
                                                     "([BIIII)V");
     method_onControlStateChanged = env->GetMethodID(clazz, "onControlStateChanged",
@@ -158,7 +155,6 @@ static void initializeNative(JNIEnv *env, jobject object) {
 }
 
 static void cleanupNative(JNIEnv *env, jobject object) {
-    bt_status_t status;
     if (!btIf) return;
 
     if (sPanIf !=NULL) {
@@ -178,7 +174,6 @@ static void cleanupNative(JNIEnv *env, jobject object) {
 static jboolean enablePanNative(JNIEnv *env, jobject object, jint local_role) {
     bt_status_t status = BT_STATUS_FAIL;
     debug("in");
-    jbyte *addr;
     if (sPanIf)
         status = sPanIf->enable(local_role);
     debug("out");
@@ -187,7 +182,6 @@ static jboolean enablePanNative(JNIEnv *env, jobject object, jint local_role) {
 static jint getPanLocalRoleNative(JNIEnv *env, jobject object) {
     debug("in");
     int local_role = 0;
-    jbyte *addr;
     if (sPanIf)
         local_role  = sPanIf->get_local_role();
     debug("out");
