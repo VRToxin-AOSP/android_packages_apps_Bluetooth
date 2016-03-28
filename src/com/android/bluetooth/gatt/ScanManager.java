@@ -323,8 +323,8 @@ public class ScanManager {
         private static final int SCAN_MODE_LOW_POWER_INTERVAL_MS = 5000;
         private static final int SCAN_MODE_BALANCED_WINDOW_MS = 2000;
         private static final int SCAN_MODE_BALANCED_INTERVAL_MS = 5000;
-        private static final int SCAN_MODE_LOW_LATENCY_WINDOW_MS = 5000;
-        private static final int SCAN_MODE_LOW_LATENCY_INTERVAL_MS = 5000;
+        private static final int SCAN_MODE_LOW_LATENCY_WINDOW_MS = 160;
+        private static final int SCAN_MODE_LOW_LATENCY_INTERVAL_MS = 160;
 
         /**
          * Onfound/onlost for scan settings
